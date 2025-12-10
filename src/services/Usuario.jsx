@@ -109,7 +109,5 @@ class UsuarioService {
     throw error;
   }
 }
-
 }
-
 export default new UsuarioService();
