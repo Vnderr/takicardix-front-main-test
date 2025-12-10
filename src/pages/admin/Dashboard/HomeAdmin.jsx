@@ -9,17 +9,20 @@ import { useAuth } from "../../../context/AuthContext";
 
 function HomeAdmin() {
   const navigate = useNavigate();
-  const { token, user, isAdmin } = useAuth();
+  const { token, user, isAdmin, loading } = useAuth(); 
   const [stats, setStats] = useState({
     totalProductos: 0,
     totalVentas: 0,
     totalUsuarios: 0,
     ventasDelMes: 0,
   });
-  const [loading, setLoading] = useState(true);
+  const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
+    if (loading) return; 
+
     if (!token || !isAdmin) {
+      console.log("Redirigiendo: token o isAdmin inválido", { token, user, isAdmin });
       navigate("/login");
       return;
     }
@@ -55,14 +58,14 @@ function HomeAdmin() {
           navigate("/login");
         }
       } finally {
-        setLoading(false);
+        setLoadingStats(false);
       }
     };
 
     loadStats();
-  }, [token, isAdmin, navigate]);
+  }, [token, isAdmin, loading, navigate]);
 
-  if (loading) {
+  if (loading || loadingStats) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <Text variant="p">Cargando dashboard...</Text>
