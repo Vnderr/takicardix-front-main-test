@@ -49,8 +49,7 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log("Intentando login con:", credentials);
 
-      const response = await UsuarioService.login(credentials);
-      const { token: newToken, usuario } = response.data;
+      const { token: newToken, usuario } = await UsuarioService.login(credentials);
 
       console.log("Respuesta de API:", response.data);
       console.log("Login exitoso, usuario:", usuario);
