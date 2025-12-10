@@ -48,14 +48,18 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       console.log("Intentando login con:", credentials);
-      const { usuario, token: newToken } = await UsuarioService.login(credentials);
+
+      const response = await UsuarioService.login(credentials);
+      const { token: newToken, usuario } = response.data;
+
+      console.log("Respuesta de API:", response.data);
       console.log("Login exitoso, usuario:", usuario);
 
       if (usuario) {
         localStorage.setItem("user", JSON.stringify(usuario));
         setUser(usuario);
       } else {
-        console.warn(" usuario vacío, no se guardó en localStorage");
+        console.warn("⚠ usuario vacío, no se guardó en localStorage");
       }
 
       if (newToken) {
@@ -78,9 +82,8 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setToken(null);
     setCart([]);
-    window.location.href = "/login"; 
+    window.location.href = "/login";
   };
-
 
   const addToCart = (product) => {
     setCart((prevCart) => {
@@ -144,7 +147,6 @@ export const AuthProvider = ({ children }) => {
     return cart.reduce((total, item) => total + item.cantidad, 0);
   };
 
-
   const value = {
     user,
     token,
@@ -159,7 +161,8 @@ export const AuthProvider = ({ children }) => {
     getCartTotal,
     getCartItemsCount,
 
-    isAdmin: user?.rol === "ADMIN" || user?.rol?.rol_id === 1,
+
+    isAdmin: user?.rol?.nombre === "ADMIN" || user?.rol?.rol_id === 1,
     isAuthenticated: !!token,
   };
 
