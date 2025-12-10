@@ -13,13 +13,17 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);   // 🔑 nuevo estado para el token
+  const [token, setToken] = useState(null);
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
-    const savedToken = localStorage.getItem("token"); // recuperar token
+    if (userData && userData !== "undefined") {
+      setUser(JSON.parse(userData));
+    }
+
+    const savedToken = localStorage.getItem("token");
     const cartData = localStorage.getItem("cart");
 
     if (userData) {
@@ -36,18 +40,24 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      console.log("Intentando login con:", credentials); 
+      console.log("Intentando login con:", credentials);
       const { userData, token: newToken } = await UsuarioService.login(credentials);
-      console.log("Login exitoso, usuario:", userData); 
+      console.log("Login exitoso, usuario:", userData);
 
 
-      localStorage.setItem("user", JSON.stringify(userData));
+      if (userData) {
+        localStorage.setItem("user", JSON.stringify(userData));
+        setUser(userData);
+      } else {
+        console.warn("⚠️ userData vacío, no se guardó en localStorage");
+      }
+
       localStorage.setItem("token", newToken);
 
       setUser(userData);
       setToken(newToken);
 
-      console.log(" Estado user/token actualizado:", userData, newToken); 
+      console.log(" Estado user/token actualizado:", userData, newToken);
       return userData;
     } catch (error) {
       console.error(" Login error:", error);
@@ -57,7 +67,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem("user");
-    localStorage.removeItem("token"); 
+    localStorage.removeItem("token");
     localStorage.removeItem("cart");
     setUser(null);
     setToken(null);
@@ -130,7 +140,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
-    token,          
+    token,
     login,
     logout,
     loading,
