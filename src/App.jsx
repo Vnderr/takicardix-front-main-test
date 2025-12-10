@@ -9,7 +9,7 @@ import { useAuth } from "./context/AuthContext";
 
 function Layout() {
   const location = useLocation();
-  const { user, token, isAdmin } = useAuth(); 
+  const { user, token, isAdmin } = useAuth();
 
   const isAdminRoute = location.pathname.startsWith("/admin");
 
@@ -57,6 +57,7 @@ function Layout() {
               }
               return <Route key={path} path={path} element={element} />;
             })}
+
           </Routes>
         </Suspense>
       </main>
