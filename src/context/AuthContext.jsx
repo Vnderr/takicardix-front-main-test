@@ -22,16 +22,36 @@ export const AuthProvider = ({ children }) => {
     const savedToken = localStorage.getItem("token");
     const cartData = localStorage.getItem("cart");
 
+    if (savedToken) setToken(savedToken);
+
     if (rawUser && rawUser !== "undefined") {
       try {
-        setUser(JSON.parse(rawUser));
+        const parsedUser = JSON.parse(rawUser);
+        setUser(parsedUser);
       } catch (e) {
-        console.error("Error al parsear user:", e);
+        console.error(" Error al parsear user:", e);
+        localStorage.removeItem("user");
+        setUser(null);
       }
     }
 
-    if (savedToken) {
-      setToken(savedToken);
+    if (!rawUser && savedToken) {
+      (async () => {
+        try {
+          const me = await UsuarioService.me(savedToken);
+          if (me) {
+            localStorage.setItem("user", JSON.stringify(me));
+            setUser(me);
+          }
+        } catch (e) {
+          console.warn("No se pudo recuperar el usuario con /me:", e);
+          localStorage.removeItem("token");
+          setToken(null);
+        } finally {
+          setLoading(false);
+        }
+      })();
+      return;
     }
 
     if (cartData && cartData !== "undefined") {
@@ -57,7 +77,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("user", JSON.stringify(usuario));
         setUser(usuario);
       } else {
-        console.warn(" usuario vacío, no se guardó en localStorage");
+        console.warn("usuario vacío, no se guardó en localStorage");
       }
 
       if (newToken) {
@@ -161,7 +181,9 @@ export const AuthProvider = ({ children }) => {
 
     isAdmin:
       user?.rol === "ADMIN" ||
+      user?.rol === "ROLE_ADMIN" ||
       user?.rol?.nombre === "ADMIN" ||
+      user?.rol?.nombre === "ROLE_ADMIN" ||
       user?.rol?.rol_id === 1,
     isAuthenticated: !!token,
   };
