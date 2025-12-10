@@ -46,33 +46,32 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (credentials) => {
-  try {
-    console.log("Intentando login con:", credentials);
+    try {
+      console.log("Intentando login con:", credentials);
 
-    const { token: newToken, usuario } = await UsuarioService.login(credentials);
+      const { token: newToken, usuario } = await UsuarioService.login(credentials);
 
-    console.log("Login exitoso, usuario:", usuario);
+      console.log("Login exitoso, usuario:", usuario);
 
-    if (usuario) {
-      localStorage.setItem("user", JSON.stringify(usuario));
-      setUser(usuario);
-    } else {
-      console.warn("⚠ usuario vacío, no se guardó en localStorage");
+      if (usuario) {
+        localStorage.setItem("user", JSON.stringify(usuario));
+        setUser(usuario);
+      } else {
+        console.warn("⚠ usuario vacío, no se guardó en localStorage");
+      }
+
+      if (newToken) {
+        localStorage.setItem("token", newToken);
+        setToken(newToken);
+      }
+
+      console.log("Estado user/token actualizado:", usuario, newToken);
+      return usuario;
+    } catch (error) {
+      console.error(" Login error:", error);
+      throw error;
     }
-
-    if (newToken) {
-      localStorage.setItem("token", newToken);
-      setToken(newToken);
-    }
-
-    console.log("Estado user/token actualizado:", usuario, newToken);
-    return usuario;
-  } catch (error) {
-    console.error(" Login error:", error);
-    throw error;
-  }
-};
-
+  };
 
   const logout = () => {
     localStorage.removeItem("user");
@@ -160,8 +159,10 @@ export const AuthProvider = ({ children }) => {
     getCartTotal,
     getCartItemsCount,
 
-
-    isAdmin: user?.rol?.nombre === "ADMIN" || user?.rol?.rol_id === 1,
+    isAdmin:
+      user?.rol === "ADMIN" ||
+      user?.rol?.nombre === "ADMIN" ||
+      user?.rol?.rol_id === 1,
     isAuthenticated: !!token,
   };
 
