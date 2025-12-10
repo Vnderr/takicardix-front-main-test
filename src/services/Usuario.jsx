@@ -86,8 +86,11 @@ class UsuarioService {
           headers: { "Content-Type": "application/json" },
         }
       );
+
       console.log("📡 Respuesta de API:", response.data);
-      return response.data;
+
+      const { token, usuario } = response.data;
+      return { userData: usuario, token };
     } catch (error) {
       console.error(
         "Error en servicio login:",
@@ -96,6 +99,7 @@ class UsuarioService {
       throw error;
     }
   }
+
 }
 
 export default new UsuarioService();
