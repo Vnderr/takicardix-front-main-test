@@ -5,11 +5,11 @@ import VentaService from "../../../services/Venta";
 import UsuarioService from "../../../services/Usuario";
 import Text from "../../../components/atoms/Text";
 import Button from "../../../components/atoms/Button";
-import { useAuth } from "../../../context/AuthContext"; 
+import { useAuth } from "../../../context/AuthContext";
 
 function HomeAdmin() {
   const navigate = useNavigate();
-  const { token } = useAuth(); 
+  const { token, user, isAdmin } = useAuth();
   const [stats, setStats] = useState({
     totalProductos: 0,
     totalVentas: 0,
@@ -19,6 +19,11 @@ function HomeAdmin() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!token || !isAdmin) {
+      navigate("/login");
+      return;
+    }
+
     const loadStats = async () => {
       try {
         const headers = { Authorization: `Bearer ${token}` };
@@ -47,7 +52,7 @@ function HomeAdmin() {
       } catch (error) {
         console.error("Error cargando estadísticas:", error);
         if (error.response?.status === 401) {
-          navigate("/login"); 
+          navigate("/login");
         }
       } finally {
         setLoading(false);
@@ -55,12 +60,20 @@ function HomeAdmin() {
     };
 
     loadStats();
-  }, [token, navigate]);
+  }, [token, isAdmin, navigate]);
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <Text variant="p">Cargando dashboard...</Text>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Text variant="p">Acceso denegado. Debes ser administrador.</Text>
       </div>
     );
   }
