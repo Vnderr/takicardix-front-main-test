@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const BASE_URL = "https://takicardix.onrender.com/api/usuarios";
+const AUTH_URL = "https://takicardix.onrender.com/api/auth";
 
 class UsuarioService {
   async getAllUsuarios() {
@@ -74,40 +75,38 @@ class UsuarioService {
   }
 
   async login(credentials) {
-  try {
-    console.log("📡 Enviando login a API...", credentials);
+    try {
+      console.log(" Enviando login a API...", credentials);
 
-    const response = await axios.post(
-      "https://takicardix.onrender.com/api/auth/login", 
-      {
-        correo: credentials.correo,
-        password: credentials.contrasena, 
-      },
-      {
-        headers: { "Content-Type": "application/json" },
+      const response = await axios.post(
+        `${AUTH_URL}/login`,
+        {
+          correo: credentials.correo,
+          password: credentials.contrasena,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      console.log(" Respuesta de API:", response.data);
+
+      const { token, usuario } = response.data;
+
+      if (!token || !usuario) {
+        console.warn("Respuesta incompleta del backend:", response.data);
+        return null;
       }
-    );
 
-    console.log("📡 Respuesta de API:", response.data);
-
-    const { token, usuario } = response.data;
-
-    if (!token || !usuario) {
-      console.warn(" Respuesta incompleta del backend:", response.data);
-      return null;
+      return { token, usuario };
+    } catch (error) {
+      console.error(
+        " Error en servicio login:",
+        error.response?.data || error.message
+      );
+      throw error;
     }
-
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(usuario));
-
-    return { userData: usuario, token };
-  } catch (error) {
-    console.error(
-      " Error en servicio login:",
-      error.response?.data || error.message
-    );
-    throw error;
   }
 }
-}
+
 export default new UsuarioService();
