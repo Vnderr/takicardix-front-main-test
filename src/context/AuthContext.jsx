@@ -182,8 +182,8 @@ export const AuthProvider = ({ children }) => {
     isAdmin:
       user?.rol === "ADMIN" ||
       user?.rol === "ROLE_ADMIN" ||
-      user?.rol?.nombre === "ADMIN" ||
-      user?.rol?.nombre === "ROLE_ADMIN" ||
+      (typeof user?.rol?.nombre === "string" &&
+        user.rol.nombre.toUpperCase() === "ADMIN") ||
       user?.rol?.rol_id === 1,
     isAuthenticated: !!token,
   };
