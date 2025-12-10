@@ -74,33 +74,42 @@ class UsuarioService {
   }
 
   async login(credentials) {
-    try {
-      console.log("📡 Enviando login a API...", credentials);
-      const response = await axios.post(
-        `${BASE_URL}/login`,
-        {
-          correo: credentials.correo,
-          contrasena: credentials.contrasena,
-        },
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+  try {
+    console.log("📡 Enviando login a API...", credentials);
 
-      console.log("📡 Respuesta de API:", response.data);
+    const response = await axios.post(
+      "https://takicardix.onrender.com/api/auth/login", 
+      {
+        correo: credentials.correo,
+        password: credentials.contrasena, 
+      },
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
 
-      // Adaptar la respuesta al formato que espera AuthContext
-      const { token, usuario } = response.data;
+    console.log("📡 Respuesta de API:", response.data);
 
-      return { userData: usuario, token };
-    } catch (error) {
-      console.error(
-        "❌ Error en servicio login:",
-        error.response?.data || error.message
-      );
-      throw error;
+    const { token, usuario } = response.data;
+
+    if (!token || !usuario) {
+      console.warn(" Respuesta incompleta del backend:", response.data);
+      return null;
     }
+
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(usuario));
+
+    return { userData: usuario, token };
+  } catch (error) {
+    console.error(
+      " Error en servicio login:",
+      error.response?.data || error.message
+    );
+    throw error;
   }
+}
+
 }
 
 export default new UsuarioService();
