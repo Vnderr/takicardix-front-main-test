@@ -5,9 +5,11 @@ import VentaService from "../../../services/Venta";
 import UsuarioService from "../../../services/Usuario";
 import Text from "../../../components/atoms/Text";
 import Button from "../../../components/atoms/Button";
+import { useAuth } from "../../../context/AuthContext"; 
 
 function HomeAdmin() {
   const navigate = useNavigate();
+  const { token } = useAuth(); 
   const [stats, setStats] = useState({
     totalProductos: 0,
     totalVentas: 0,
@@ -19,10 +21,12 @@ function HomeAdmin() {
   useEffect(() => {
     const loadStats = async () => {
       try {
+        const headers = { Authorization: `Bearer ${token}` };
+
         const [productos, ventas, usuarios] = await Promise.all([
-          ProductoService.getAllProductos(),
-          VentaService.getAllVentas(),
-          UsuarioService.getAllUsuarios(),
+          ProductoService.getAllProductos(headers),
+          VentaService.getAllVentas(headers),
+          UsuarioService.getAllUsuarios(headers),
         ]);
 
         const hoy = new Date();
@@ -42,13 +46,16 @@ function HomeAdmin() {
         });
       } catch (error) {
         console.error("Error cargando estadísticas:", error);
+        if (error.response?.status === 401) {
+          navigate("/login"); 
+        }
       } finally {
         setLoading(false);
       }
     };
 
     loadStats();
-  }, []);
+  }, [token, navigate]);
 
   if (loading) {
     return (
@@ -73,10 +80,7 @@ function HomeAdmin() {
       {/* Estadísticas Principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <Text
-            variant="h3"
-            className="text-lg font-semibold text-gray-700 mb-2"
-          >
+          <Text variant="h3" className="text-lg font-semibold text-gray-700 mb-2">
             Total de Productos
           </Text>
           <Text variant="h2" className="text-3xl font-bold text-blue-600">
@@ -90,10 +94,7 @@ function HomeAdmin() {
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <Text
-            variant="h3"
-            className="text-lg font-semibold text-gray-700 mb-2"
-          >
+          <Text variant="h3" className="text-lg font-semibold text-gray-700 mb-2">
             Total de Ventas
           </Text>
           <Text variant="h2" className="text-3xl font-bold text-green-600">
@@ -107,10 +108,7 @@ function HomeAdmin() {
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <Text
-            variant="h3"
-            className="text-lg font-semibold text-gray-700 mb-2"
-          >
+          <Text variant="h3" className="text-lg font-semibold text-gray-700 mb-2">
             Usuarios Registrados
           </Text>
           <Text variant="h2" className="text-3xl font-bold text-purple-600">
@@ -124,10 +122,7 @@ function HomeAdmin() {
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <Text
-            variant="h3"
-            className="text-lg font-semibold text-gray-700 mb-2"
-          >
+          <Text variant="h3" className="text-lg font-semibold text-gray-700 mb-2">
             Ventas del Mes
           </Text>
           <Text variant="h2" className="text-3xl font-bold text-orange-600">
@@ -175,7 +170,7 @@ function HomeAdmin() {
             Actividad Reciente
           </Text>
           <Text variant="p" className="text-gray-600 mb-2">
-            Ultima venta: Hoy
+            Última venta: Hoy
           </Text>
           <Text variant="p" className="text-gray-600 mb-2">
             Productos agregados: 0

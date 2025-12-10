@@ -1,13 +1,15 @@
-import { Routes, Route, useLocation, matchPath } from "react-router-dom";
+import { Routes, Route, useLocation, matchPath, Navigate } from "react-router-dom";
 import { Suspense } from "react";
 import { adminLinks } from "./data/NavbarAdmin";
 import { publicLinks } from "./data/NavbarUser";
 import { appRoutes } from "./routes/config";
 import Navbar from "./components/organisms/Navbar";
 import Footer from "./components/organisms/Footer";
+import { useAuth } from "./context/AuthContext";
 
 function Layout() {
   const location = useLocation();
+  const { user, token, isAdmin } = useAuth(); 
 
   const isAdminRoute = location.pathname.startsWith("/admin");
 
@@ -16,7 +18,6 @@ function Layout() {
   );
 
   const showNavbar = isAdminRoute || currentRoute?.showNavbar;
-
   const navbarLinks = isAdminRoute ? adminLinks : publicLinks;
   const navbarTitle = isAdminRoute ? "Admin Takicardix" : "Takicardix";
 
@@ -33,9 +34,29 @@ function Layout() {
           }
         >
           <Routes>
-            {appRoutes.map(({ path, element }) => (
-              <Route key={path} path={path} element={element} />
-            ))}
+            {appRoutes.map(({ path, element, isAdmin: routeIsAdmin }) => {
+              if (routeIsAdmin) {
+                if (!token || !user) {
+                  return (
+                    <Route
+                      key={path}
+                      path={path}
+                      element={<Navigate to="/login" replace />}
+                    />
+                  );
+                }
+                if (!isAdmin) {
+                  return (
+                    <Route
+                      key={path}
+                      path={path}
+                      element={<Navigate to="/" replace />}
+                    />
+                  );
+                }
+              }
+              return <Route key={path} path={path} element={element} />;
+            })}
           </Routes>
         </Suspense>
       </main>

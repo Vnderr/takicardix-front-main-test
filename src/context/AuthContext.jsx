@@ -13,15 +13,20 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);   // 🔑 nuevo estado para el token
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
+    const savedToken = localStorage.getItem("token"); // recuperar token
     const cartData = localStorage.getItem("cart");
 
     if (userData) {
       setUser(JSON.parse(userData));
+    }
+    if (savedToken) {
+      setToken(savedToken);
     }
     if (cartData) {
       setCart(JSON.parse(cartData));
@@ -31,28 +36,35 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      console.log("🔐 Intentando login con:", credentials); 
-      const userData = await UsuarioService.login(credentials);
-      console.log("✅ Login exitoso, usuario:", userData); 
+      console.log("Intentando login con:", credentials); 
+      const { userData, token: newToken } = await UsuarioService.login(credentials);
+      console.log("Login exitoso, usuario:", userData); 
+
 
       localStorage.setItem("user", JSON.stringify(userData));
-      setUser(userData);
+      localStorage.setItem("token", newToken);
 
-      console.log("🔄 Estado user actualizado:", userData); 
+      setUser(userData);
+      setToken(newToken);
+
+      console.log(" Estado user/token actualizado:", userData, newToken); 
       return userData;
     } catch (error) {
-      console.error("❌ Login error:", error);
+      console.error(" Login error:", error);
       throw error;
     }
   };
 
   const logout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("token"); 
     localStorage.removeItem("cart");
     setUser(null);
+    setToken(null);
     setCart([]);
     window.location.href = "/";
   };
+
 
   const addToCart = (product) => {
     setCart((prevCart) => {
@@ -118,6 +130,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    token,          
     login,
     logout,
     loading,
