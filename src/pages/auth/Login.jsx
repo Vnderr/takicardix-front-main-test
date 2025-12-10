@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 function Login() {
   const [credentials, setCredentials] = useState({
     correo: "",
-    contrasena: "",
+    password: "", 
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -20,8 +20,18 @@ function Login() {
     setError("");
 
     try {
-      await login(credentials);
-      navigate("/");
+      const usuario = await login(credentials);
+
+
+      if (
+        (typeof usuario?.rol?.nombre === "string" &&
+          usuario.rol.nombre.toUpperCase() === "ADMIN") ||
+        usuario?.rol?.rol_id === 1
+      ) {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/"); 
+      }
     } catch (err) {
       setError("Credenciales incorrectas. Por favor, intenta nuevamente.");
     } finally {
@@ -74,8 +84,8 @@ function Login() {
             </label>
             <input
               type="password"
-              name="contrasena"
-              value={credentials.contrasena}
+              name="password" 
+              value={credentials.password}
               onChange={handleChange}
               required
               placeholder="Tu contraseña"
@@ -86,11 +96,10 @@ function Login() {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-              loading
+            className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${loading
                 ? "bg-gray-400 text-gray-600 cursor-not-allowed"
                 : "bg-green-500 hover:bg-green-600 text-black font-bold"
-            }`}
+              }`}
           >
             {loading ? "Iniciando Sesión..." : "Iniciar Sesión"}
           </button>
