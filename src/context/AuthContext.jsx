@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
       try {
         setUser(JSON.parse(rawUser));
       } catch (e) {
-        console.error("❌ Error al parsear user:", e);
+        console.error("Error al parsear user:", e);
       }
     }
 
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
       try {
         setCart(JSON.parse(cartData));
       } catch (e) {
-        console.error("❌ Error al parsear cart:", e);
+        console.error("Error al parsear cart:", e);
       }
     }
 
@@ -48,14 +48,14 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       console.log("Intentando login con:", credentials);
-      const { userData, token: newToken } = await UsuarioService.login(credentials);
-      console.log("Login exitoso, usuario:", userData);
+      const { usuario, token: newToken } = await UsuarioService.login(credentials);
+      console.log("Login exitoso, usuario:", usuario);
 
-      if (userData) {
-        localStorage.setItem("user", JSON.stringify(userData));
-        setUser(userData);
+      if (usuario) {
+        localStorage.setItem("user", JSON.stringify(usuario));
+        setUser(usuario);
       } else {
-        console.warn("⚠️ userData vacío, no se guardó en localStorage");
+        console.warn(" usuario vacío, no se guardó en localStorage");
       }
 
       if (newToken) {
@@ -63,10 +63,10 @@ export const AuthProvider = ({ children }) => {
         setToken(newToken);
       }
 
-      console.log("✅ Estado user/token actualizado:", userData, newToken);
-      return userData;
+      console.log("Estado user/token actualizado:", usuario, newToken);
+      return usuario;
     } catch (error) {
-      console.error("❌ Login error:", error);
+      console.error(" Login error:", error);
       throw error;
     }
   };
@@ -78,8 +78,9 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setToken(null);
     setCart([]);
-    window.location.href = "/";
+    window.location.href = "/login"; 
   };
+
 
   const addToCart = (product) => {
     setCart((prevCart) => {
@@ -143,6 +144,7 @@ export const AuthProvider = ({ children }) => {
     return cart.reduce((total, item) => total + item.cantidad, 0);
   };
 
+
   const value = {
     user,
     token,
@@ -156,7 +158,9 @@ export const AuthProvider = ({ children }) => {
     clearCart,
     getCartTotal,
     getCartItemsCount,
-    isAdmin: user?.rol?.rol_id === 1,
+
+    isAdmin: user?.rol === "ADMIN" || user?.rol?.rol_id === 1,
+    isAuthenticated: !!token,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
