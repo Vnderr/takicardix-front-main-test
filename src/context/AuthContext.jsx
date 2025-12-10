@@ -35,30 +35,11 @@ export const AuthProvider = ({ children }) => {
       }
     }
 
-    if (!rawUser && savedToken) {
-      (async () => {
-        try {
-          const me = await UsuarioService.me(savedToken);
-          if (me) {
-            localStorage.setItem("user", JSON.stringify(me));
-            setUser(me);
-          }
-        } catch (e) {
-          console.warn("No se pudo recuperar el usuario con /me:", e);
-          localStorage.removeItem("token");
-          setToken(null);
-        } finally {
-          setLoading(false);
-        }
-      })();
-      return;
-    }
-
     if (cartData && cartData !== "undefined") {
       try {
         setCart(JSON.parse(cartData));
       } catch (e) {
-        console.error("Error al parsear cart:", e);
+        console.error(" Error al parsear cart:", e);
       }
     }
 
@@ -77,7 +58,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("user", JSON.stringify(usuario));
         setUser(usuario);
       } else {
-        console.warn("usuario vacío, no se guardó en localStorage");
+        console.warn(" usuario vacío, no se guardó en localStorage");
       }
 
       if (newToken) {
