@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("user", JSON.stringify(usuario));
         setUser(usuario);
       } else {
-        console.warn("⚠ usuario vacío, no se guardó en localStorage");
+        console.warn(" usuario vacío, no se guardó en localStorage");
       }
 
       if (newToken) {
