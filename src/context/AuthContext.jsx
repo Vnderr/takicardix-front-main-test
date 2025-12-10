@@ -18,23 +18,30 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData && userData !== "undefined") {
-      setUser(JSON.parse(userData));
-    }
-
+    const rawUser = localStorage.getItem("user");
     const savedToken = localStorage.getItem("token");
     const cartData = localStorage.getItem("cart");
 
-    if (userData) {
-      setUser(JSON.parse(userData));
+    if (rawUser && rawUser !== "undefined") {
+      try {
+        setUser(JSON.parse(rawUser));
+      } catch (e) {
+        console.error("❌ Error al parsear user:", e);
+      }
     }
+
     if (savedToken) {
       setToken(savedToken);
     }
-    if (cartData) {
-      setCart(JSON.parse(cartData));
+
+    if (cartData && cartData !== "undefined") {
+      try {
+        setCart(JSON.parse(cartData));
+      } catch (e) {
+        console.error("❌ Error al parsear cart:", e);
+      }
     }
+
     setLoading(false);
   }, []);
 
@@ -44,7 +51,6 @@ export const AuthProvider = ({ children }) => {
       const { userData, token: newToken } = await UsuarioService.login(credentials);
       console.log("Login exitoso, usuario:", userData);
 
-
       if (userData) {
         localStorage.setItem("user", JSON.stringify(userData));
         setUser(userData);
@@ -52,15 +58,15 @@ export const AuthProvider = ({ children }) => {
         console.warn("⚠️ userData vacío, no se guardó en localStorage");
       }
 
-      localStorage.setItem("token", newToken);
+      if (newToken) {
+        localStorage.setItem("token", newToken);
+        setToken(newToken);
+      }
 
-      setUser(userData);
-      setToken(newToken);
-
-      console.log(" Estado user/token actualizado:", userData, newToken);
+      console.log("✅ Estado user/token actualizado:", userData, newToken);
       return userData;
     } catch (error) {
-      console.error(" Login error:", error);
+      console.error("❌ Login error:", error);
       throw error;
     }
   };
@@ -74,7 +80,6 @@ export const AuthProvider = ({ children }) => {
     setCart([]);
     window.location.href = "/";
   };
-
 
   const addToCart = (product) => {
     setCart((prevCart) => {

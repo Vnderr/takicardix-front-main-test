@@ -89,17 +89,18 @@ class UsuarioService {
 
       console.log("📡 Respuesta de API:", response.data);
 
+      // Adaptar la respuesta al formato que espera AuthContext
       const { token, usuario } = response.data;
+
       return { userData: usuario, token };
     } catch (error) {
       console.error(
-        "Error en servicio login:",
+        "❌ Error en servicio login:",
         error.response?.data || error.message
       );
       throw error;
     }
   }
-
 }
 
 export default new UsuarioService();
