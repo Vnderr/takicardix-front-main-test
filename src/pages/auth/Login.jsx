@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 function Login() {
   const [credentials, setCredentials] = useState({
     correo: "",
-    password: "", 
+    contrasena: "", 
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -84,7 +84,7 @@ function Login() {
             </label>
             <input
               type="password"
-              name="password" 
+              name="contrasena" 
               value={credentials.password}
               onChange={handleChange}
               required
