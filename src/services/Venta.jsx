@@ -59,15 +59,19 @@ class VentaService {
       throw error;
     }
   }
-  async getVentasByUsuario(usuarioId) {
-    try {
-      const response = await axios.get(`${BASE_URL}/usuario/${usuarioId}`);
-      return response.data;
-    } catch (error) {
-      console.error("Error al obtener las ventas del usuario:", error);
-      throw error;
-    }
+async getVentasByUsuario(usuarioId, token) {
+  try {
+    const response = await axios.get(`${BASE_URL}/usuario/${usuarioId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener las ventas del usuario:", error.response?.data || error.message);
+    throw error;
   }
+}
 }
 
 export default new VentaService();
